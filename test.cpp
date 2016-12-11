@@ -8,7 +8,7 @@ using namespace advcpp;
 using namespace buf_advcpp;
 
 UNIT(Simple_buffer)
-	Buffer b(0);
+	Buffer<char> b(0);
 	ASSERT_THAT(b.Cap() == 0);
 END_UNIT
 
@@ -29,12 +29,74 @@ UNIT(Substring)
 	ASSERT_THAT(s.Substring(4) == "you");
 END_UNIT
 
+UNIT(Subscript)
+	String s("some string");
+	ASSERT_THAT(s[2] == 'm');
+END_UNIT
+
+UNIT(Subscript_const)
+	const String s("const string");
+	ASSERT_THAT(s[3] == 's');
+END_UNIT
 
 TEST_SUITE(String tests)
 	TEST(Simple_buffer)
 	TEST(String_unary_addition)
 	TEST(String_c_str)
 	TEST(Substring)
+	TEST(Subscript)
+	TEST(Subscript_const)
 END_SUITE
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
