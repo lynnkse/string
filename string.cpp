@@ -25,6 +25,7 @@ String& String::operator+=(const String& _str)
 	m_buffer.Resize(m_len + _str.m_len + 1);
 	std::copy(&(mutString.m_buffer[0]), &(mutString.m_buffer[mutString.m_len + 1]), &m_buffer[m_len]);
 	m_len += _str.m_len;
+	return *this;
 }
 
 const String::char_type* String::As_cstr() const
