@@ -7,9 +7,35 @@
 #include "string.h"
 #include <cstdlib>
 #include <cctype>
+#include <cwchar>
 
 namespace advcpp
 {
+
+template<typename T>
+struct CharTraits;
+
+template<>
+struct CharTraits<char> 
+{
+    static size_t Len(const char* p) { return strlen(p); }
+//    static void Copy(const char* s, const char* d) { strcpy(d, s); }
+    static char toLower(const char& c) { return std::tolower(c); }
+	static int StrCompare(const char* a, const char* b) { return strcmp(a, b); }
+
+    static const char* terminator;
+};
+
+template<>
+struct CharTraits<wchar_t>
+{
+    static wchar_t Len(const wchar_t* p) { return wcslen(p); }
+//  static void Copy(const char* s, const char* d) { strcpy(d, s); }
+    static char toLower(const wchar_t& c) { return std::towlower(c); }
+	static int StrCompare(const wchar_t* a, const wchar_t* b) {return wcscmp(a, b); }
+
+    static const wchar_t* terminator;
+};
 
 namespace buf_advcpp
 {
@@ -144,11 +170,10 @@ void Buffer<T>::Resize(size_t _cap)
 {
 	if(m_cap < _cap)
 	{
-		data_type* temp = m_buf;
-		m_buf = new data_type[_cap];
-		std::copy(temp, temp + m_cap, m_buf);
-		delete[] temp;
-		m_cap = _cap;
+		Buffer b(_cap);
+		std::copy(m_buf, m_buf + m_cap, b.m_buf);
+		std::swap(b.m_buf, m_buf);
+		std::swap(b.m_cap, m_cap);
 	}
 }
 
@@ -175,7 +200,7 @@ String<StringChar>::String()
 
 template <class StringChar>
 String<StringChar>::String(const char_type* _str/* = ""*/)
-	: m_buffer(strlen(_str) + 1), m_len((strlen(_str)))
+	: m_buffer(CharTraits<char_type>::Len(_str) + 1), m_len(CharTraits<char_type>::Len(_str))
 {
 	std::copy(_str, _str + m_len + 1, &m_buffer[0]);
 }
@@ -188,9 +213,9 @@ String<StringChar>& String<StringChar>::operator+=(const String& _str)
 	//m_buffer.EnsureCapacity(req);
 
 	const char_type* b =   _str.As_cstr();
-	const char_type* e =   b + m_len +1;
+	const char_type* e =   b + _str.m_len +1;
 	
-	std::copy(b, e, const_cast<char_type*>(As_cstr()));
+	std::copy(b, e, const_cast<char_type*>(As_cstr()) + m_len);
 	m_len += _str.m_len;
 
 	return *this;
@@ -211,8 +236,6 @@ size_t String<StringChar>::Lenght()
 template <class StringChar>
 String<StringChar> String<StringChar>::Substring(unsigned int _idx)
 {
-	//assert(_idx < m_len);
-
 	String s(&m_buffer[_idx]);
 			
 	return s;
@@ -240,10 +263,11 @@ unsigned int String<StringChar>::Substring(const String& _str) const
 template <class StringChar>
 String<StringChar>& String<StringChar>::ToLower()
 {
-	const char_type* ptr = As_cstr();
+	char_type* ptr = const_cast<char_type*>(As_cstr());
 	while(*ptr)
 	{
-		std::tolower(*ptr++);
+		*ptr = CharTraits<char_type>::toLower(*ptr);
+		++ptr;
 	}
 	
 	return *this;
@@ -260,10 +284,7 @@ String<StringChar> operator+(const String<StringChar>& a, const String<StringCha
 template <class StringChar>
 bool operator==(const String<StringChar>& _s1, const String<StringChar>& _s2)
 {
-	String<StringChar>& mutString1 = const_cast<String<StringChar>&>(_s1);
-	String<StringChar>& mutString2 = const_cast<String<StringChar>&>(_s2);
-	
-	return strcmp(mutString1.As_cstr(), mutString2.As_cstr()) == 0;
+	return CharTraits<StringChar>::StrCompare(_s1.As_cstr(), _s2.As_cstr()) == 0;
 }
 
 template <class StringChar>
