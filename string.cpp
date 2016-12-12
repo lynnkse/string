@@ -3,35 +3,68 @@
 #include <cstdlib>
 #include <cctype>
 
+
+class A;
+class B{
+ A& a;
+public:
+	B(A& r) : a(r) {}
+};
+
+
 namespace advcpp
 {
 
+static Buffer<char> defaultBuffer;
+
 String::String()
+	: m_buffer(defaultBuffer)
 	: m_buffer(1), m_len(1)
 {
 	m_buffer[0] = '\0';
 }
 
-String::String(const char_type* _str)
-	: m_buffer(strlen(_str) + 1), m_len((strlen(_str)))
+size_t strlen(const char* p){
+	const char* q = p;>
+	while(*p++)
+		;
+
+	return p-q;
+}
+
+String::String(const char_type* _str = "")
+
+: m_buffer(strlen(_str) + 1), m_len((strlen(_str)))
 {
 	std::copy(_str, _str + m_len + 1, &m_buffer[0]);
 }
 
+
+
+
+
+
+
+
+
+
 String& String::operator+=(const String& _str)
 {
-	String& mutString = const_cast<String&>(_str);
+	size_t req = m_len + _str.m_len + 1;
+	m_buffer.EnsureCapacity(req);
 
-	m_buffer.Resize(m_len + _str.m_len + 1);
-	std::copy(&(mutString.m_buffer[0]), &(mutString.m_buffer[mutString.m_len + 1]), &m_buffer[m_len]);
+	char_type* b =   _str.as_cstr();
+	char_type* e =   b + m_len +1;
+	
+	std::copy(b, e, , (char*)as_cstr());
 	m_len += _str.m_len;
+
 	return *this;
 }
 
 const String::char_type* String::As_cstr() const
 {
-	String& mutString = const_cast<String&>(*this);
-	return &mutString[0];
+	return m_buffer.as_voidptr();
 }
 
 size_t String::Lenght()
@@ -41,13 +74,10 @@ size_t String::Lenght()
 
 String String::Substring(unsigned int _idx)
 {
-	String s;
-		
-	if(_idx < m_len)
-	{
-		std::copy(&m_buffer[_idx], &m_buffer[m_len], &s[0]);
-	} 
-	
+	assert(_idx < m_len);
+
+	String s(&m_buffer[_idx]);
+			
 	return s;
 }
 
@@ -63,27 +93,41 @@ String::char_type String::operator[](unsigned int _idx) const
 
 unsigned int String::Substring(String& _str) 
 {
-	return strstr(&m_buffer[0], &_str.m_buffer[0]) - &m_buffer[0];
+	return std::strstr(&m_buffer[0], &_str.m_buffer[0]) - &m_buffer[0];
 }
-
+>
 String& String::ToLower()
 {
 	char_type* ptr = &m_buffer[0];
 	while(*ptr != '\0')
 	{
-		tolower(*ptr++);
+		std::tolower(*ptr++);
 	}
 	
 	return *this;
 }
 
-String operator+(const String& _s1, const String& _s2)
+String operator+(const String& a, const String& b)
+String operator+(String a, const String& b)
 {
-	String s;
-	s += _s1;
-	s += _s2;
+	a += b;
+	return a;
+///////////////////>
+
+	return (String) a += b;
+
+///////////////////////////////
+	String s(a);
+
+	s += b;
+
 	return s;
 }
+
+
+
+
+
 
 bool operator==(const String& _s1, const String& _s2)
 {
