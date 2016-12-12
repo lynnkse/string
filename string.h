@@ -31,7 +31,7 @@ struct CharTraits<wchar_t>
 {
     static wchar_t Len(const wchar_t* p) { return wcslen(p); }
 //  static void Copy(const char* s, const char* d) { strcpy(d, s); }
-    static char toLower(const wchar_t& c) { return std::towlower(c); }
+    static wchar_t toLower(const wchar_t& c) { return std::towlower(c); }
 	static int StrCompare(const wchar_t* a, const wchar_t* b) {return wcscmp(a, b); }
 
     static const wchar_t* terminator;
@@ -71,7 +71,7 @@ class String
 	typedef StringChar char_type;
 
 	public:
-		String();
+		//String();
 		String(const char_type* _str);
 		
 		String& operator+=(const String& _str);
@@ -190,16 +190,15 @@ namespace advcpp
 {
 
 //static Buffer<char> defaultBuffer;
-template <class StringChar>
+/*template <class StringChar>
 String<StringChar>::String()
-	//: m_buffer(defaultBuffer)
 	: m_buffer(1), m_len(1)
 {
 	m_buffer[0] = '\0';
-}
+}*/
 
 template <class StringChar>
-String<StringChar>::String(const char_type* _str/* = ""*/)
+String<StringChar>::String(const char_type* _str = "")
 	: m_buffer(CharTraits<char_type>::Len(_str) + 1), m_len(CharTraits<char_type>::Len(_str))
 {
 	std::copy(_str, _str + m_len + 1, &m_buffer[0]);

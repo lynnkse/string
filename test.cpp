@@ -78,6 +78,18 @@ UNIT(ToLower_char)
 	ASSERT_THAT(a == b);
 END_UNIT
 
+UNIT(Cpy_CTOR_char)
+	advcpp::String<char> a("hello");
+	advcpp::String<char> b(a);
+	ASSERT_THAT(a == b);
+END_UNIT
+
+UNIT(Cpy_CTOR_wchar)
+	advcpp::String<wchar_t> a(L"hello");
+	advcpp::String<wchar_t> b(a);
+	ASSERT_THAT(a == b);
+END_UNIT
+
 TEST_SUITE(String tests)
 	//TEST(Simple_buffer)
 	TEST(String_unary_addition)
