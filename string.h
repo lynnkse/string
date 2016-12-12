@@ -3,6 +3,10 @@
 
 #include <stdlib.h>
 #include <iostream>
+#include <cstring>
+#include "string.h"
+#include <cstdlib>
+#include <cctype>
 
 namespace advcpp
 {
@@ -35,9 +39,10 @@ namespace buf_advcpp
 	};
 }
 
+template <class StringChar>
 class String
 {
-	typedef char char_type;
+	typedef StringChar char_type;
 
 	public:
 		String();
@@ -54,16 +59,22 @@ class String
 		size_t Lenght();
 		
 	private:
-		buf_advcpp::Buffer<char> m_buffer;
+		buf_advcpp::Buffer<char_type> m_buffer;
 		size_t m_len;
 };
 
-String operator+(const String& _s1, const String& _s2);
-bool operator==(const String& _s1, const String& _s2);
-bool operator>(const String& _s1, const String& _s2);
-bool operator<(const String& _s1, const String& _s2);
-bool operator!=(const String& _s1, const String& _s2);
-std::ostream& operator<<(std::ostream& _os, const String& _str);  
+template <class StringChar>
+String<StringChar> operator+(const String<StringChar>& _s1, const String<StringChar>& _s2);
+template <class StringChar>
+bool operator==(const String<StringChar>& _s1, const String<StringChar>& _s2);
+template <class StringChar>
+bool operator>(const String<StringChar>& _s1, const String<StringChar>& _s2);
+template <class StringChar>
+bool operator<(const String<StringChar>& _s1, const String<StringChar>& _s2);
+template <class StringChar>
+bool operator!=(const String<StringChar>& _s1, const String<StringChar>& _s2);
+template <class StringChar>
+std::ostream& operator<<(std::ostream& _os, const String<StringChar>& _str);  
 
 }
 
@@ -149,6 +160,146 @@ const void* Buffer<T>::as_void_ptr() const
 
 }
 }
+
+namespace advcpp
+{
+
+//static Buffer<char> defaultBuffer;
+template <class StringChar>
+String<StringChar>::String()
+	//: m_buffer(defaultBuffer)
+	: m_buffer(1), m_len(1)
+{
+	m_buffer[0] = '\0';
+}
+
+template <class StringChar>
+String<StringChar>::String(const char_type* _str/* = ""*/)
+	: m_buffer(strlen(_str) + 1), m_len((strlen(_str)))
+{
+	std::copy(_str, _str + m_len + 1, &m_buffer[0]);
+}
+
+template <class StringChar>
+String<StringChar>& String<StringChar>::operator+=(const String& _str)
+{
+	size_t req = m_len + _str.m_len + 1;
+	m_buffer.Resize(req);
+	//m_buffer.EnsureCapacity(req);
+
+	const char_type* b =   _str.As_cstr();
+	const char_type* e =   b + m_len +1;
+	
+	std::copy(b, e, const_cast<char_type*>(As_cstr()));
+	m_len += _str.m_len;
+
+	return *this;
+}
+
+template <class StringChar>
+const typename String<StringChar>::char_type* String<StringChar>::As_cstr() const
+{
+	return static_cast<const char_type*>(m_buffer.as_void_ptr());
+}
+
+template <class StringChar>
+size_t String<StringChar>::Lenght()
+{
+	return m_len;
+}
+
+template <class StringChar>
+String<StringChar> String<StringChar>::Substring(unsigned int _idx)
+{
+	//assert(_idx < m_len);
+
+	String s(&m_buffer[_idx]);
+			
+	return s;
+}
+
+template <class StringChar>
+typename String<StringChar>::char_type& String<StringChar>::operator[](unsigned int _idx)
+{
+	return m_buffer[_idx];
+}
+
+template <class StringChar>
+typename String<StringChar>::char_type String<StringChar>::operator[](unsigned int _idx) const
+{
+	return m_buffer[_idx];
+}
+
+template <class StringChar>
+unsigned int String<StringChar>::Substring(const String& _str) const
+{
+	
+	return std::strstr(As_cstr(), _str.As_cstr()) - As_cstr();
+}
+
+template <class StringChar>
+String<StringChar>& String<StringChar>::ToLower()
+{
+	const char_type* ptr = As_cstr();
+	while(*ptr)
+	{
+		std::tolower(*ptr++);
+	}
+	
+	return *this;
+}
+
+template <class StringChar>
+String<StringChar> operator+(const String<StringChar>& a, const String<StringChar>& b)
+{
+	String<StringChar> s(a);
+	s += b;
+	return s;
+}
+
+template <class StringChar>
+bool operator==(const String<StringChar>& _s1, const String<StringChar>& _s2)
+{
+	String<StringChar>& mutString1 = const_cast<String<StringChar>&>(_s1);
+	String<StringChar>& mutString2 = const_cast<String<StringChar>&>(_s2);
+	
+	return strcmp(mutString1.As_cstr(), mutString2.As_cstr()) == 0;
+}
+
+template <class StringChar>
+bool operator!=(const String<StringChar>& _s1, const String<StringChar>& _s2)
+{
+	return !(_s1 == _s1);
+}
+
+template <class StringChar>
+bool operator>(const String<StringChar>& _s1, const String<StringChar>& _s2)
+{
+	String<StringChar>& mutString1 = const_cast<String<StringChar>&>(_s1);
+	String<StringChar>& mutString2 = const_cast<String<StringChar>&>(_s2);
+	
+	return strcmp(&mutString1[0], &mutString2[0]) > 0;
+}
+
+template <class StringChar>
+bool operator<(const String<StringChar>& _s1, const String<StringChar>& _s2)
+{
+	String<StringChar>& mutString1 = const_cast<String<StringChar>&>(_s1);
+	String<StringChar>& mutString2 = const_cast<String<StringChar>&>(_s2);
+	
+	return strcmp(&mutString1[0], &mutString2[0]) < 0;
+}
+
+template <class StringChar>
+std::ostream& operator<<(std::ostream& _os, const String<StringChar>& _str)
+{
+	String<StringChar>& mutString = const_cast<String<StringChar>&>(_str);
+	_os << &mutString[0];
+	return _os;
+}  
+
+}
+
 
 #endif
 
