@@ -39,6 +39,14 @@ UNIT(Subscript_const)
 	ASSERT_THAT(s[3] == 's');
 END_UNIT
 
+UNIT(Concat)
+	String s("con");
+	String s2("cat");
+	cout << s + s2 << endl;
+	ASSERT_THAT(s + s2 == "concat");
+END_UNIT
+
+
 TEST_SUITE(String tests)
 	TEST(Simple_buffer)
 	TEST(String_unary_addition)
@@ -46,6 +54,7 @@ TEST_SUITE(String tests)
 	TEST(Substring)
 	TEST(Subscript)
 	TEST(Subscript_const)
+	TEST(Concat)
 END_SUITE
 
 

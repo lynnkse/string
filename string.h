@@ -27,6 +27,7 @@ namespace buf_advcpp
 			data_type operator[](unsigned int _idx) const;
 			
 			void Resize(size_t _cap);
+			const void* as_void_ptr() const;
 			
 		private:
 			data_type* m_buf;
@@ -45,7 +46,7 @@ class String
 		String& operator+=(const String& _str);
 		
 		String Substring(unsigned int _idx);
-		unsigned int Substring(String& _str);
+		unsigned int Substring(const String& _str) const;
 		String& ToLower();
 		const char_type* As_cstr() const;
 		char_type& operator[](unsigned int _idx);
@@ -139,6 +140,13 @@ void Buffer<T>::Resize(size_t _cap)
 		m_cap = _cap;
 	}
 }
+
+template<class T>
+const void* Buffer<T>::as_void_ptr() const
+{
+	return m_buf;
+}
+
 }
 }
 

@@ -3,60 +3,34 @@
 #include <cstdlib>
 #include <cctype>
 
-
-class A;
-class B{
- A& a;
-public:
-	B(A& r) : a(r) {}
-};
-
-
 namespace advcpp
 {
 
-static Buffer<char> defaultBuffer;
+//static Buffer<char> defaultBuffer;
 
 String::String()
-	: m_buffer(defaultBuffer)
+	//: m_buffer(defaultBuffer)
 	: m_buffer(1), m_len(1)
 {
 	m_buffer[0] = '\0';
 }
 
-size_t strlen(const char* p){
-	const char* q = p;>
-	while(*p++)
-		;
-
-	return p-q;
-}
-
-String::String(const char_type* _str = "")
-
-: m_buffer(strlen(_str) + 1), m_len((strlen(_str)))
+String::String(const char_type* _str/* = ""*/)
+	: m_buffer(strlen(_str) + 1), m_len((strlen(_str)))
 {
 	std::copy(_str, _str + m_len + 1, &m_buffer[0]);
 }
 
-
-
-
-
-
-
-
-
-
 String& String::operator+=(const String& _str)
 {
 	size_t req = m_len + _str.m_len + 1;
-	m_buffer.EnsureCapacity(req);
+	m_buffer.Resize(req);
+	//m_buffer.EnsureCapacity(req);
 
-	char_type* b =   _str.as_cstr();
-	char_type* e =   b + m_len +1;
+	const char_type* b =   _str.As_cstr();
+	const char_type* e =   b + m_len +1;
 	
-	std::copy(b, e, , (char*)as_cstr());
+	std::copy(b, e, const_cast<char_type*>(As_cstr()));
 	m_len += _str.m_len;
 
 	return *this;
@@ -64,7 +38,7 @@ String& String::operator+=(const String& _str)
 
 const String::char_type* String::As_cstr() const
 {
-	return m_buffer.as_voidptr();
+	return static_cast<const char_type*>(m_buffer.as_void_ptr());
 }
 
 size_t String::Lenght()
@@ -74,7 +48,7 @@ size_t String::Lenght()
 
 String String::Substring(unsigned int _idx)
 {
-	assert(_idx < m_len);
+	//assert(_idx < m_len);
 
 	String s(&m_buffer[_idx]);
 			
@@ -91,15 +65,16 @@ String::char_type String::operator[](unsigned int _idx) const
 	return m_buffer[_idx];
 }
 
-unsigned int String::Substring(String& _str) 
+unsigned int String::Substring(const String& _str) const
 {
-	return std::strstr(&m_buffer[0], &_str.m_buffer[0]) - &m_buffer[0];
+	
+	return std::strstr(As_cstr(), _str.As_cstr()) - As_cstr();
 }
->
+
 String& String::ToLower()
 {
-	char_type* ptr = &m_buffer[0];
-	while(*ptr != '\0')
+	const char_type* ptr = As_cstr();
+	while(*ptr)
 	{
 		std::tolower(*ptr++);
 	}
@@ -108,26 +83,11 @@ String& String::ToLower()
 }
 
 String operator+(const String& a, const String& b)
-String operator+(String a, const String& b)
 {
-	a += b;
-	return a;
-///////////////////>
-
-	return (String) a += b;
-
-///////////////////////////////
 	String s(a);
-
 	s += b;
-
 	return s;
 }
-
-
-
-
-
 
 bool operator==(const String& _s1, const String& _s2)
 {
